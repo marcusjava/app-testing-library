@@ -198,5 +198,68 @@ describe("SignUp page tests", () => {
         await screen.findByText("Username cannot be null")
       ).toBeInTheDocument();
     });
+    it("display validation message for email", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                email: "E-mail cannot be null",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      expect(
+        await screen.findByText("E-mail cannot be null")
+      ).toBeInTheDocument();
+    });
+    it("display validation message for password minimum characters", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                password: "Password must be at least 6 characters",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      expect(
+        await screen.findByText("Password must be at least 6 characters")
+      ).toBeInTheDocument();
+    });
+    it("display validation message for password required uppercase and number characters", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                password:
+                  "Password must have at least 1 uppercase, 1 lowercase letter and 1 number",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      expect(
+        await screen.findByText(
+          "Password must have at least 1 uppercase, 1 lowercase letter and 1 number"
+        )
+      ).toBeInTheDocument();
+    });
   });
 });
