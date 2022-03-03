@@ -11,12 +11,14 @@ const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     if (
-      username.length &&
-      email.length &&
       password.length &&
       confirmPassword.length &&
       password === confirmPassword
@@ -41,10 +43,12 @@ const SignUp: React.FC = () => {
       setSignUpSuccess(true);
       clearFields();
     } catch (error: any) {
-      const {
-        validationErrors: { email, password },
-      } = error.response.data;
-      setErrors({ ...errors, email, password });
+      if (error.response.status === 400) {
+        const {
+          validationErrors: { email, password, username },
+        } = error.response.data;
+        setErrors({ ...errors, email, password, username });
+      }
       setLoading(false);
       setDisabled(false);
       setSignUpSuccess(false);
@@ -57,7 +61,7 @@ const SignUp: React.FC = () => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
-    setErrors({ email: "", password: "" });
+    setErrors({ username: "", email: "", password: "" });
   };
   return (
     <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
@@ -79,6 +83,9 @@ const SignUp: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
+                {errors.username ? (
+                  <div className="text-danger">{errors.username}</div>
+                ) : null}
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">

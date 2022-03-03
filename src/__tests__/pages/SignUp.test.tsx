@@ -9,8 +9,6 @@ import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 
-import api from "../../services/api";
-
 describe("SignUp page tests", () => {
   describe("Layout", () => {
     it("has Header", () => {
@@ -177,6 +175,28 @@ describe("SignUp page tests", () => {
         expect(form).not.toBeInTheDocument();
       }); */
       await waitForElementToBeRemoved(form);
+    });
+    it("display validation message for username", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                username: "Username cannot be null",
+                email: "E-mail cannot be null",
+                password: "Password must be at least 6 characters",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      expect(
+        await screen.findByText("Username cannot be null")
+      ).toBeInTheDocument();
     });
   });
 });
