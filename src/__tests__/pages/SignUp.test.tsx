@@ -74,6 +74,24 @@ describe("SignUp page tests", () => {
     });
   });
   describe("interactions on Form", () => {
+    let requestBody: any;
+    let counter = 0;
+    const server = setupServer(
+      rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+        requestBody = req.body;
+        counter += 1;
+        return res(ctx.status(200));
+      })
+    );
+
+    beforeEach(() => {
+      counter = 0;
+    });
+
+    beforeAll(() => server.listen());
+
+    afterAll(() => server.close());
+
     let button: HTMLElement;
     const setup = () => {
       render(<SignUp />);
@@ -97,14 +115,6 @@ describe("SignUp page tests", () => {
       expect(button).not.toBeDisabled();
     });
     it("send username,email and password to backend after click on submit button", async () => {
-      let requestBody;
-      const server = setupServer(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          requestBody = req.body;
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
 
       userEvent.click(button);
@@ -127,15 +137,6 @@ describe("SignUp page tests", () => {
       });
     });
     it("disables button when there is ongoing api call", async () => {
-      let counter = 0;
-      let requestBody;
-      const server = setupServer(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          counter += 1;
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       userEvent.click(button);
       userEvent.click(button);
@@ -150,12 +151,6 @@ describe("SignUp page tests", () => {
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
     });
     it("display spinner when API request", async () => {
-      const server = setupServer(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       userEvent.click(button);
       expect(await screen.findByRole("status")).toBeInTheDocument();
@@ -164,12 +159,6 @@ describe("SignUp page tests", () => {
       );
     });
     it("display notification after successful signup", async () => {
-      const server = setupServer(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       userEvent.click(button);
 
@@ -179,12 +168,6 @@ describe("SignUp page tests", () => {
       expect(text).toBeInTheDocument();
     });
     it("hides form on submit success", async () => {
-      const server = setupServer(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          return res(ctx.status(200));
-        })
-      );
-      server.listen();
       setup();
       userEvent.click(button);
 
