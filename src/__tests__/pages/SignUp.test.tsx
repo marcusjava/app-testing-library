@@ -1,4 +1,9 @@
-import { screen, render } from "@testing-library/react";
+import {
+  screen,
+  render,
+  waitFor,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import SignUp from "../../pages/SignUp";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
@@ -172,6 +177,23 @@ describe("SignUp page tests", () => {
         "Please check your email for activate your account"
       );
       expect(text).toBeInTheDocument();
+    });
+    it("hides form on submit success", async () => {
+      const server = setupServer(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          return res(ctx.status(200));
+        })
+      );
+      server.listen();
+      setup();
+      userEvent.click(button);
+
+      const form = screen.getByTestId("form-sign-up");
+      userEvent.click(button);
+      /* await waitFor(() => {
+        expect(form).not.toBeInTheDocument();
+      }); */
+      await waitForElementToBeRemoved(form);
     });
   });
 });
