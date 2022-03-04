@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Input from "../../components/Input";
 
 // import { Container } from './styles';
 import api from "../../services/api";
@@ -72,66 +73,43 @@ const SignUp: React.FC = () => {
         <div className="card-body">
           {!signUpSuccess && (
             <form onSubmit={handleSubmit} data-testid="form-sign-up">
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  Username
-                </label>
-                <input
-                  id="username"
-                  className="form-control"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                {errors.username ? (
-                  <div className="text-danger">{errors.username}</div>
-                ) : null}
-              </div>
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  className="form-control"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                {errors.email ? (
-                  <div className="text-danger">{errors.email}</div>
-                ) : null}
-              </div>
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  className="form-control"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {errors.password ? (
-                  <div className="text-danger">{errors.password}</div>
-                ) : null}
-              </div>
-              <div className="mb-3">
-                <label htmlFor="password_confirm" className="form-label">
-                  Confirm Password
-                </label>
-                <input
-                  id="password_confirm"
-                  type="password"
-                  className="form-control"
-                  placeholder="Confirm your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
+              <Input
+                label="Username"
+                id="username"
+                value={username}
+                type="text"
+                onChange={(e) => setUsername(e.target.value)}
+                error={errors?.username}
+                placeholder="Enter your username"
+              />
+              <Input
+                label="Email"
+                id="email"
+                value={email}
+                type="email"
+                onChange={(e) => setEmail(e.target.value)}
+                error={errors?.email}
+                placeholder="Enter your email"
+              />
+
+              <Input
+                type="password"
+                id="password"
+                label="Password"
+                error={errors?.password}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+              <Input
+                label="Confirm Password"
+                placeholder="Confirm your password"
+                id="password_confirm"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+
               <button disabled={disabled} className="btn btn-primary btn-md">
                 {loading && (
                   <span

@@ -84,6 +84,7 @@ describe("SignUp page tests", () => {
 
     beforeEach(() => {
       counter = 0;
+      server.resetHandlers();
     });
 
     beforeAll(() => server.listen());
@@ -242,7 +243,7 @@ describe("SignUp page tests", () => {
       server.use(
         rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
           requestBody = req.body;
-          return res(
+          return res.once(
             ctx.status(400),
             ctx.json({
               validationErrors: {
@@ -260,6 +261,29 @@ describe("SignUp page tests", () => {
           "Password must have at least 1 uppercase, 1 lowercase letter and 1 number"
         )
       ).toBeInTheDocument();
+    });
+    it("hide spinner and enable button after response received", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res.once(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                password:
+                  "Password must have at least 1 uppercase, 1 lowercase letter and 1 number",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      await screen.findByText(
+        "Password must have at least 1 uppercase, 1 lowercase letter and 1 number"
+      );
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+      expect(button).toBeEnabled();
     });
   });
 });
