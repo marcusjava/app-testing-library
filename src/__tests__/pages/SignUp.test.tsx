@@ -177,7 +177,12 @@ describe("SignUp page tests", () => {
       }); */
       await waitForElementToBeRemoved(form);
     });
-    it("display validation message for username", async () => {
+
+    it.each`
+      field         | message
+      ${"username"} | ${"Username cannot be null"}
+      ${"email"}    | ${"E-mail cannot be null"}
+    `("display $message for $field", async ({ field, message }) => {
       server.use(
         rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
           requestBody = req.body;
@@ -185,9 +190,7 @@ describe("SignUp page tests", () => {
             ctx.status(400),
             ctx.json({
               validationErrors: {
-                username: "Username cannot be null",
-                email: "E-mail cannot be null",
-                password: "Password must be at least 6 characters",
+                [field]: `${message}`,
               },
             })
           );
@@ -195,30 +198,9 @@ describe("SignUp page tests", () => {
       );
       setup();
       userEvent.click(button);
-      expect(
-        await screen.findByText("Username cannot be null")
-      ).toBeInTheDocument();
+      expect(await screen.findByText(message)).toBeInTheDocument();
     });
-    it("display validation message for email", async () => {
-      server.use(
-        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-          requestBody = req.body;
-          return res(
-            ctx.status(400),
-            ctx.json({
-              validationErrors: {
-                email: "E-mail cannot be null",
-              },
-            })
-          );
-        })
-      );
-      setup();
-      userEvent.click(button);
-      expect(
-        await screen.findByText("E-mail cannot be null")
-      ).toBeInTheDocument();
-    });
+
     it("display validation message for password minimum characters", async () => {
       server.use(
         rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
