@@ -8,6 +8,7 @@ import Input from "./Input";
 
 type Props = {
   label: string;
+  name: string;
   id: string;
   value: string;
   type: "text" | "email" | "password";
@@ -16,11 +17,20 @@ type Props = {
 };
 
 describe("Input component tests", () => {
-  const setup = ({ label, id, value, type, error, placeholder }: Props) => {
+  const setup = ({
+    label,
+    id,
+    value,
+    type,
+    error,
+    placeholder,
+    name,
+  }: Props) => {
     const onChangeFn = jest.fn();
     render(
       <Input
         label={label}
+        name={name}
         id={id}
         value={value}
         type={type}
@@ -33,6 +43,7 @@ describe("Input component tests", () => {
   it("should have invalid class when error", () => {
     setup({
       label: "Username",
+      name: "username",
       id: "username",
       value: "",
       type: "text",
@@ -45,6 +56,7 @@ describe("Input component tests", () => {
   it("should have invalid feedback when error", async () => {
     setup({
       label: "Username",
+      name: "username",
       id: "username",
       value: "",
       type: "text",
@@ -59,6 +71,7 @@ describe("Input component tests", () => {
     setup({
       label: "Username",
       id: "username",
+      name: "username",
       value: "marcus",
       type: "text",
       placeholder: "Enter your username",

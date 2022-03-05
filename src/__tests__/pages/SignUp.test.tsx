@@ -92,14 +92,18 @@ describe("SignUp page tests", () => {
     afterAll(() => server.close());
 
     let button: HTMLElement;
+    let username: HTMLElement;
+    let email: HTMLElement;
+    let password: HTMLElement;
+    let confirmPassword: HTMLElement;
     const setup = () => {
       render(<SignUp />);
-      const username = screen.getByPlaceholderText("Enter your username");
-      const email = screen.getByPlaceholderText("Enter your email");
-      const password = screen.getByPlaceholderText<HTMLInputElement>(
+      username = screen.getByPlaceholderText("Enter your username");
+      email = screen.getByPlaceholderText("Enter your email");
+      password = screen.getByPlaceholderText<HTMLInputElement>(
         "Enter your password"
       );
-      const confirmPassword = screen.getByPlaceholderText<HTMLInputElement>(
+      confirmPassword = screen.getByPlaceholderText<HTMLInputElement>(
         "Confirm your password"
       );
       button = screen.getByRole("button", { name: "Sign Up" });
@@ -266,6 +270,72 @@ describe("SignUp page tests", () => {
       );
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
       expect(button).toBeEnabled();
+    });
+    it("hide validation message for username when field is updated", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res.once(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                username: "Username cannot be null",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      const validation = await screen.findByText("Username cannot be null");
+      expect(validation).toBeInTheDocument();
+      userEvent.type(username, "marcus");
+      expect(validation).not.toBeInTheDocument();
+    });
+    it("hide validation message for email when field is updated", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res.once(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                email: "E-mail cannot be null",
+              },
+            })
+          );
+        })
+      );
+      setup();
+      userEvent.click(button);
+      const validation = await screen.findByText("E-mail cannot be null");
+      expect(validation).toBeInTheDocument();
+      userEvent.type(email, "marcus@email.com");
+      expect(validation).not.toBeInTheDocument();
+    });
+    it("hide validation message for password when field is updated", async () => {
+      server.use(
+        rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+          requestBody = req.body;
+          return res.once(
+            ctx.status(400),
+            ctx.json({
+              validationErrors: {
+                password: "Password must be at least 6 characters",
+              },
+            })
+          );
+        })
+      );
+      setup();
+
+      userEvent.click(button);
+      const validation = await screen.findByText(
+        "Password must be at least 6 characters"
+      );
+      expect(validation).toBeInTheDocument();
+      userEvent.type(password, "123456");
+      expect(validation).not.toBeInTheDocument();
     });
   });
 });

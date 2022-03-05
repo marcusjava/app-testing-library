@@ -8,10 +8,12 @@ const SignUp: React.FC = () => {
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [inputs, setInputs] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [errors, setErrors] = useState({
     username: "",
     email: "",
@@ -19,6 +21,7 @@ const SignUp: React.FC = () => {
   });
 
   useEffect(() => {
+    const { password, confirmPassword } = inputs;
     if (
       password.length &&
       confirmPassword.length &&
@@ -28,19 +31,19 @@ const SignUp: React.FC = () => {
     } else {
       setDisabled(true);
     }
-  }, [confirmPassword, password, username, email]);
+  }, [inputs]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = {
-      username,
-      email,
-      password,
-    };
+    const { username, email, password } = inputs;
     try {
       setLoading(true);
       setDisabled(true);
-      await api.post("/users", data);
+      await api.post("/users", {
+        username,
+        email,
+        password,
+      });
       setSignUpSuccess(true);
       clearFields();
     } catch (error: any) {
@@ -56,12 +59,19 @@ const SignUp: React.FC = () => {
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+    setErrors({ ...errors, [name]: "" });
+  };
+
   const clearFields = () => {
     setLoading(false);
-    setUsername("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
+    setInputs({ username: "", email: "", password: "", confirmPassword: "" });
     setErrors({ username: "", email: "", password: "" });
   };
   return (
@@ -75,39 +85,43 @@ const SignUp: React.FC = () => {
             <form onSubmit={handleSubmit} data-testid="form-sign-up">
               <Input
                 label="Username"
+                name="username"
                 id="username"
-                value={username}
+                value={inputs.username}
                 type="text"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleChange}
                 error={errors?.username}
                 placeholder="Enter your username"
               />
               <Input
                 label="Email"
+                name="email"
                 id="email"
-                value={email}
+                value={inputs.email}
                 type="email"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleChange}
                 error={errors?.email}
                 placeholder="Enter your email"
               />
 
               <Input
                 type="password"
+                name="password"
                 id="password"
                 label="Password"
                 error={errors?.password}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={inputs.password}
+                onChange={handleChange}
                 placeholder="Enter your password"
               />
               <Input
                 label="Confirm Password"
+                name="confirmPassword"
                 placeholder="Confirm your password"
                 id="password_confirm"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={inputs.confirmPassword}
+                onChange={handleChange}
               />
 
               <button disabled={disabled} className="btn btn-primary btn-md">

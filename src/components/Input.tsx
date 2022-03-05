@@ -4,6 +4,7 @@ import React from "react";
 
 interface Props {
   id: string;
+  name: string;
   label: string;
   error?: string | null;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
@@ -14,6 +15,7 @@ interface Props {
 
 const Input: React.FC<Props> = ({
   id,
+  name,
   label,
   error,
   onChange,
@@ -28,6 +30,7 @@ const Input: React.FC<Props> = ({
       </label>
       <input
         id={id}
+        name={name}
         className={`form-control ${error && "is-invalid"}`}
         type={type}
         placeholder={placeholder}
