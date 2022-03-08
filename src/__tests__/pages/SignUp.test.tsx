@@ -3,11 +3,43 @@ import {
   render,
   waitFor,
   waitForElementToBeRemoved,
+  act,
 } from "@testing-library/react";
 import SignUp from "../../pages/SignUp";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
+import i18n from "../../locale/i18n";
+import en from "../../locale/en.json";
+import pt from "../../locale/pt.json";
+import LanguageSelector from "../../components/LanguageSelector";
+
+let requestBody: any;
+let counter = 0;
+let acceptLanguageHeader: string | null;
+let button: HTMLElement;
+let username: HTMLElement;
+let email: HTMLElement;
+let password: HTMLElement;
+let confirmPassword: HTMLElement;
+
+const server = setupServer(
+  rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
+    requestBody = req.body;
+    counter += 1;
+    acceptLanguageHeader = req.headers.get("Accept-language");
+    return res(ctx.status(200));
+  })
+);
+
+beforeEach(() => {
+  counter = 0;
+  server.resetHandlers();
+});
+
+beforeAll(() => server.listen());
+
+afterAll(() => server.close());
 
 describe("SignUp page tests", () => {
   describe("Layout", () => {
@@ -72,30 +104,6 @@ describe("SignUp page tests", () => {
     });
   });
   describe("interactions on Form", () => {
-    let requestBody: any;
-    let counter = 0;
-    const server = setupServer(
-      rest.post("http://localhost:8080/api/1.0/users", (req, res, ctx) => {
-        requestBody = req.body;
-        counter += 1;
-        return res(ctx.status(200));
-      })
-    );
-
-    beforeEach(() => {
-      counter = 0;
-      server.resetHandlers();
-    });
-
-    beforeAll(() => server.listen());
-
-    afterAll(() => server.close());
-
-    let button: HTMLElement;
-    let username: HTMLElement;
-    let email: HTMLElement;
-    let password: HTMLElement;
-    let confirmPassword: HTMLElement;
     const setup = () => {
       render(<SignUp />);
       username = screen.getByPlaceholderText("Enter your username");
@@ -336,6 +344,100 @@ describe("SignUp page tests", () => {
       expect(validation).toBeInTheDocument();
       userEvent.type(password, "123456");
       expect(validation).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Internacionalization", () => {
+    let ptLangToggle: HTMLElement;
+    let enLangToggle: HTMLElement;
+    let form: HTMLElement;
+    const setup = () => {
+      render(
+        <>
+          <LanguageSelector />
+
+          <SignUp />
+        </>
+      );
+      username = screen.getByPlaceholderText("Enter your username");
+      email = screen.getByPlaceholderText("Enter your email");
+      password = screen.getByPlaceholderText<HTMLInputElement>(
+        "Enter your password"
+      );
+      confirmPassword = screen.getByPlaceholderText<HTMLInputElement>(
+        "Confirm your password"
+      );
+      button = screen.getByRole("button", { name: "Sign Up" });
+      userEvent.type(username, "marcus");
+      userEvent.type(email, "marcus@email.com");
+      userEvent.type(password, "teste");
+      userEvent.type(confirmPassword, "teste");
+      ptLangToggle = screen.getByAltText("Brasil flag");
+      enLangToggle = screen.getByAltText("English flag");
+      form = screen.getByTestId("form-sign-up");
+    };
+
+    afterEach(() => {
+      act(() => {
+        i18n.changeLanguage("en");
+      });
+    });
+    it("initially displays all texts in English", () => {
+      setup();
+
+      expect(
+        screen.getByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.passwordConfirm)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Sign Up" })
+      ).toBeInTheDocument();
+    });
+    it("displays all texts in Portuguese after change language", () => {
+      setup();
+
+      userEvent.click(ptLangToggle);
+      expect(
+        screen.getByRole("heading", { name: pt.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(pt.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(pt.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(pt.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(pt.passwordConfirm)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: pt.signUp })
+      ).toBeInTheDocument();
+    });
+    it("displays all texts in English after change language from portuguese", () => {
+      setup();
+
+      userEvent.click(enLangToggle);
+      expect(
+        screen.getByRole("heading", { name: en.signUp })
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(en.username)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.email)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.password)).toBeInTheDocument();
+      expect(screen.getByLabelText(en.passwordConfirm)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: en.signUp })
+      ).toBeInTheDocument();
+    });
+    it("sends accpet language EN for outgoing request", async () => {
+      setup();
+      userEvent.click(button);
+      await waitForElementToBeRemoved(form);
+      expect(acceptLanguageHeader).toBe("en");
+    });
+    it("sends accpet language PT for outgoing request after selecting that language", async () => {
+      setup();
+      userEvent.click(ptLangToggle);
+      userEvent.click(button);
+      await waitForElementToBeRemoved(form);
+      expect(acceptLanguageHeader).toBe("pt");
     });
   });
 });

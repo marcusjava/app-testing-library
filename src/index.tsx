@@ -2,6 +2,7 @@ import "./index.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import "./locale/i18n";
 
 ReactDOM.render(
   <React.StrictMode>
