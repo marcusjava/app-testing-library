@@ -3,8 +3,7 @@ import Input from "../../components/Input";
 import { useTranslation } from "react-i18next";
 
 // import { Container } from './styles';
-import api from "../../services/api";
-import LanguageSelector from "../../components/LanguageSelector";
+import { signUp } from "../../services/apiCalls";
 
 const SignUp: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -38,23 +37,10 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { username, email, password } = inputs;
     try {
       setLoading(true);
       setDisabled(true);
-      await api.post(
-        "/users",
-        {
-          username,
-          email,
-          password,
-        },
-        {
-          headers: {
-            "Accept-language": i18n.language,
-          },
-        }
-      );
+      await signUp(inputs);
       setSignUpSuccess(true);
       clearFields();
     } catch (error: any) {
