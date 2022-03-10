@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import App from "../App";
 import userEvent from "@testing-library/user-event";
+import pt from "../locale/pt.json";
+import en from "../locale/en.json";
 
 describe("Routing", () => {
   const setup = (path: string) => {
@@ -67,9 +69,21 @@ describe("Routing", () => {
     }
   );
 
-  it("check links are displayed in PT language", () => {
+  it("check links are displayed in EN language initially", () => {
+    setup("/");
+    expect(screen.getByText(en.signUp)).toBeInTheDocument();
+    expect(screen.getByText(en.home)).toBeInTheDocument();
+    expect(screen.getByText(en.user)).toBeInTheDocument();
+    expect(screen.getByText(en.login)).toBeInTheDocument();
+  });
+
+  it("check links are displayed in PT language after click on button", () => {
     setup("/");
     const ptLangToggle = screen.getByAltText("Brasil flag");
-    // userEvent.click(ptLangToggle)
+    userEvent.click(ptLangToggle);
+    expect(screen.getByText(pt.signUp)).toBeInTheDocument();
+    expect(screen.getByText(pt.home)).toBeInTheDocument();
+    expect(screen.getByText(pt.user)).toBeInTheDocument();
+    expect(screen.getByText(pt.login)).toBeInTheDocument();
   });
 });

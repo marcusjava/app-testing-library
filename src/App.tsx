@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import User from "./pages/User";
 import { useTranslation } from "react-i18next";
+import NavBar from "./components/NavBar";
 
 function App() {
   const { t } = useTranslation();
@@ -18,30 +19,7 @@ function App() {
   };
   return (
     <>
-      <div>
-        <ul className="list-unstyled list-inline">
-          <li>
-            <a href="/" onClick={onClickLink}>
-              {t("home")}
-            </a>
-          </li>
-          <li>
-            <a href="/signup" onClick={onClickLink}>
-              {t("signUp")}
-            </a>
-          </li>
-          <li>
-            <a href="/user" onClick={onClickLink}>
-              {t("user")}
-            </a>
-          </li>
-          <li>
-            <a href="/login" onClick={onClickLink}>
-              {t("login")}
-            </a>
-          </li>
-        </ul>
-      </div>
+      <NavBar onClickLink={onClickLink} />
       <div className="container">
         {path === "/" && <Home />}
         {path === "/login" && <Login />}
