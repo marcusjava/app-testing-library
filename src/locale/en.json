@@ -3,5 +3,8 @@
   "username": "Username",
   "email": "Email",
   "password": "Password",
-  "passwordConfirm": "Confirm Password"
+  "passwordConfirm": "Confirm Password",
+  "home": "Home",
+  "user": "User",
+  "login": "Login"
 }

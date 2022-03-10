@@ -3,5 +3,8 @@
   "username": "Usuario",
   "email": "E-mail",
   "password": "Senha",
-  "passwordConfirm": "Confirmação senha"
+  "passwordConfirm": "Confirmação senha",
+  "home": "Inicio",
+  "user": "Usuario",
+  "login": "Entrar"
 }

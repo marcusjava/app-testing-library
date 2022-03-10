@@ -72,7 +72,10 @@ const SignUp: React.FC = () => {
     setErrors({ username: "", email: "", password: "" });
   };
   return (
-    <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+    <div
+      className="col-lg-6 offset-lg-3 col-md-8 offset-md-2"
+      data-testid="signup-page"
+    >
       <div className="card mt-5">
         <div className="card-header">
           <h1 className="text-center mt-3">{t("signUp")}</h1>
